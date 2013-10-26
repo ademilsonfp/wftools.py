@@ -1,8 +1,9 @@
 # coding: utf-8
 
-import sys, traceback, bootstrap
+import sys, traceback, jquery, bootstrap
 
 tools = {
+  'jquery': jquery,
   'bootstrap': bootstrap
 }
 
