@@ -22,6 +22,4 @@ else:
       title = 'ERROR: function %s on tool %s' % (fn, tool)
       print title
       print '-' * len(title)
-      print
-
       traceback.print_exc()
