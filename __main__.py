@@ -1,10 +1,11 @@
 # coding: utf-8
 
-import sys, traceback, jquery, bootstrap
+import sys, traceback, jquery, bootstrap, jade
 
 tools = {
   'jquery': jquery,
-  'bootstrap': bootstrap
+  'bootstrap': bootstrap,
+  'jade': jade
 }
 
 if 3 > len(sys.argv):
@@ -17,7 +18,10 @@ else:
     try:
       def error(*a):
         print 'function %s not found on tool %s' % (fn, tool)
-      getattr(tools[tool], fn, error)(*sys.argv[3:])
+      if '_' == fn[:1]:
+        error()
+      else:
+        getattr(tools[tool], fn, error)(*sys.argv[3:])
     except:
       title = 'ERROR: function %s on tool %s' % (fn, tool)
       print title

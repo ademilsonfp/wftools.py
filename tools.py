@@ -41,10 +41,13 @@ def watch(src, fn, cache_path):
     with open(cache_path, 'r') as stored:
       cache = pickle.load(stored)
 
-  paths = glob(src)
+  fpaths = []
+  for pattern in src:
+    fpaths += glob(pattern)
+
   updated = []
-  removed = paths[:]
-  for path in paths:
+  removed = fpaths[:]
+  for path in fpaths:
     removed.remove(path)
     lmtime = cache.get(path, None)
     mtime = time.ctime(os.path.getmtime(path))
