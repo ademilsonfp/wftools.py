@@ -1,11 +1,12 @@
 # coding: utf-8
 
-import sys, traceback, jquery, bootstrap, jade
+import sys, traceback, jquery, bootstrap, jade, less
 
 tools = {
   'jquery': jquery,
   'bootstrap': bootstrap,
-  'jade': jade
+  'jade': jade,
+  'less': less
 }
 
 if 3 > len(sys.argv):
