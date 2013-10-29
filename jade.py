@@ -10,16 +10,25 @@ def _build_update(updated):
   if '' == html_path:
     html_path = '.'
   for path in updated:
+    ext_start = path.rfind('.')
+    ext = path[ext_start:]
+    if '.json' == ext:
+      continue
     dst_path = paths.html(path[:pre_size])
+    json_path = path[:ext_start] + '.json'
     if not os.path.exists(path) and os.path.exists(dst_path):
       os.remove(dst_path)
       print '%s removed' % dst_path
     else:
-      os.system(COMMAND % (path, html_path))
+      suf = html_path
+      if os.path.exists(json_path):
+        json = open(json_path).read().replace('"', '\\"').replace('\n', ' ')
+        suf += ' -O "%s"' % json
+      os.system(COMMAND % (path, suf))
 
 def build(*src):
   if 1 > len(src):
-    src = [paths.jade('*.jade')]
+    src = [paths.jade('*.jade'), paths.jade('*.json')]
   tools.watch(src, _build_update, paths.cache('jade_build'))
 
 def rebuild(*src):

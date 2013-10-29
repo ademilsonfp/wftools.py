@@ -18,7 +18,7 @@ def requirec(pre, suf=None):
   if None is suf:
     return pre
 
-  sep = '' if '/' == pre[-1] or None is pre or 1 > len(pre) else '/'
+  sep = '' if None is pre or 1 > len(pre) or '/' == pre[-1] else '/'
   return require(sep.join((pre, suf)))
 
 def html(path=None):
