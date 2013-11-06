@@ -26,7 +26,7 @@ def _build_update(updated):
         suf += ' -O "%s"' % json
       code = os.system(COMMAND % (path, suf))
       if 0 != code:
-        raise Exception('Error while building jade file %s' % path)
+        raise Exception('Error %d while building jade file %s' % (code, path))
 
 def build(*src):
   if 1 > len(src):

@@ -1,12 +1,12 @@
 # coding: utf-8
 
-import os, shutil, paths, tools
+import os, shutil, paths, tools, jquery
 
 from fnmatch import fnmatch
 from zipfile import ZipFile
 from glob import glob
 
-VERSION = '3.0.0'
+VERSION = '3.0.1'
 DOWNLOAD_URL = 'https://github.com/twbs/bootstrap/archive/v%s.zip' % VERSION
 
 PKG_JS = 'bootstrap-%s/dist/js/bootstrap.js' % VERSION
@@ -19,6 +19,8 @@ PATHP_FONT = '%s'
 PATHP_CACHE = '%s'
 
 def install():
+  jquery.install()
+
   pkg_path = paths.cache('bootstrap.zip')
   if not os.path.exists(pkg_path):
     tools.download(DOWNLOAD_URL, pkg_path)

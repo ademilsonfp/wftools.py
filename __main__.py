@@ -1,9 +1,11 @@
 # coding: utf-8
 
-import sys, traceback, jquery, bootstrap, jade, less
+import sys, traceback, jquery, underscore, backbone, bootstrap, jade, less
 
 tools = {
   'jquery': jquery,
+  'underscore': underscore,
+  'backbone': backbone,
   'bootstrap': bootstrap,
   'jade': jade,
   'less': less
