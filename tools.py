@@ -60,6 +60,6 @@ def watch(src, fn, cache_path):
     del cache[path]
 
   if 0 < len(updated):
+    fn(updated)
     with open(cache_path, 'w') as store:
       pickle.dump(cache, store)
-    fn(updated)

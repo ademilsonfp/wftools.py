@@ -24,7 +24,9 @@ def _build_update(updated):
       if os.path.exists(json_path):
         json = open(json_path).read().replace('"', '\\"').replace('\n', ' ')
         suf += ' -O "%s"' % json
-      os.system(COMMAND % (path, suf))
+      code = os.system(COMMAND % (path, suf))
+      if 0 != code:
+        raise Exception('Error while building jade file %s' % path)
 
 def build(*src):
   if 1 > len(src):

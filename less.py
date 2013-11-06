@@ -12,7 +12,9 @@ def _build_update(updated):
       os.remove(dst_path)
       print '%s removed' % dst_path
     else:
-      os.system(COMMAND % (path, dst_path))
+      code = os.system(COMMAND % (path, dst_path))
+      if 0 != code:
+        raise Exception('Error while build file %s' % path)
 
 def build(*src):
   if 1 > len(src):
