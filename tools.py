@@ -18,19 +18,23 @@ def download(url, path):
       chunk = response.read(bufsize)
       while '' != chunk:
         f.write(chunk)
-        loaded += len(chunk)
-        bs = 30
-        pl = bs * loaded / size
-        pr = bs * (size - loaded) / size
-        per = str(100 * loaded / size)
-        ls = bs + 4 + len(per)
-        pout = ('\r' * ls, ':' * pl, ' ' * pr, per)
-        sys.stdout.write('%s[%s%s] %s%%' % pout)
+        if 0 < size:
+          loaded += len(chunk)
+          bs = 30
+          pl = bs * loaded / size
+          pr = bs * (size - loaded) / size
+          per = str(100 * loaded / size)
+          ls = bs + 4 + len(per)
+          pout = ('\r' * ls, ':' * pl, ' ' * pr, per)
+          sys.stdout.write('%s[%s%s] %s%%' % pout)
         chunk = response.read(bufsize)
-      sys.stdout.write(('\r' * 32) + '\n')
+      if 0 < size:
+        sys.stdout.write(('\r' * 32) + '\n')
   except KeyboardInterrupt as e:
     os.remove(path)
-    print
+    if 0 < size:
+      print
+    print 'download removed %s' % path
     raise e
   print 'download saved %s' % path
 
