@@ -10,7 +10,7 @@ def download(url, path):
   urlopener.addheaders = [('User-agent', 'frontend tools')]
 
   response = urlopener.open(url)
-  size = int(response.headers['content-length'])
+  size = int(response.headers.get('content-length', 0))
   bufsize = getattr(settings, 'DOWNLOAD_BUFFER', 1024)
   loaded = 0
   try:
