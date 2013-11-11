@@ -7,7 +7,7 @@ def download(url, path):
   print 'downloading %s...' % url
 
   urlopener = urllib2.build_opener()
-  urlopener.addheaders = [('User-agent', 'frontend tools')]
+  urlopener.addheaders = [('User-agent', 'wftools.py')]
 
   response = urlopener.open(url)
   size = int(response.headers.get('content-length', 0))
@@ -28,15 +28,20 @@ def download(url, path):
           pout = ('\r' * ls, ':' * pl, ' ' * pr, per)
           sys.stdout.write('%s[%s%s] %s%%' % pout)
         chunk = response.read(bufsize)
-      if 0 < size:
-        sys.stdout.write(('\r' * 32) + '\n')
   except KeyboardInterrupt as e:
     os.remove(path)
+    msg = 'download removed %s' % path
     if 0 < size:
-      print
-    print 'download removed %s' % path
+      msg += ' ' * max(0, ls - len(msg))
+      sys.stdout.write(('\r' * ls))
+    print msg
     raise e
-  print 'download saved %s' % path
+
+  msg = 'download saved %s' % path
+  if 0 < size:
+    msg += ' ' * max(0, ls - len(msg))
+    sys.stdout.write(('\r' * ls))
+  print msg
 
 def watch(src, fn, cache_path):
   if not os.path.exists(cache_path):
