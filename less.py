@@ -2,9 +2,9 @@
 
 import os, tools, paths
 
-COMMAND = 'lessc --strict-imports %s %s'
+COMMAND = 'lessc --verbose --strict-imports %s %s'
 
-def _build_update(updated):
+def _build(updated):
   pre_size = len(paths.less()) + 1
   for path in updated:
     dst_path = paths.css(path[pre_size:path.rfind('.')] + '.css')
@@ -19,7 +19,7 @@ def _build_update(updated):
 def build(*src):
   if 1 > len(src):
     src = [paths.less('*.less')]
-  tools.watch(src, _build_update, paths.cache('less_build'))
+  tools.watch(src, _build, paths.cache('less_build'))
 
 def rebuild(*src):
   cache = paths.cache('less_build')

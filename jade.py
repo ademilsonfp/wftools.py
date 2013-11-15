@@ -9,10 +9,10 @@ def _inline_json(json):
     return match.group().replace('\n', '\\x0a')
   json = re.sub(r'\'(|([^\'\\]+|\\[^\']|\\\')*)\'|"(|([^"\\]+|\\[^"]|\\")*)"',
       repl, json)
-  json = json.replace('\n', ' ').replace('"', '\\"')
+  json = json.replace('\n', ' ').replace('"', '\\"').strip()
   return json
 
-def _build_update(updated):
+def _build(updated):
   pre_size = len(paths.jade()) + 1
   html_path = paths.html()
   if '' == html_path:
@@ -39,7 +39,7 @@ def _build_update(updated):
 def build(*src):
   if 1 > len(src):
     src = [paths.jade('*.jade'), paths.jade('*.json')]
-  tools.watch(src, _build_update, paths.cache('jade_build'))
+  tools.watch(src, _build, paths.cache('jade_build'))
 
 def rebuild(*src):
   cache = paths.cache('jade_build')

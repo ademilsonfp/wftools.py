@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import os, sys, pickle, time, urllib2, settings
+import os, sys, pickle, datetime, urllib2, settings
 from glob import glob
 
 def download(url, path):
@@ -59,7 +59,7 @@ def watch(src, fn, cache_path):
   for path in fpaths:
     removed.remove(path)
     lmtime = cache.get(path, None)
-    mtime = time.ctime(os.path.getmtime(path))
+    mtime = datetime.datetime.fromtimestamp(os.path.getmtime(path))
     if None is lmtime or lmtime < mtime:
       cache[path] = mtime
       updated.append(path)
