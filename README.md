@@ -4,7 +4,7 @@ wftools.py
 A collection of [Python](http://python.org) scripts used to boost front end
 development of HTML5 applications.
 
-Requeriments
+Requirements
 ------------
 
 To run all the scripts properly you must install the [NPM](https://npmjs.org)
