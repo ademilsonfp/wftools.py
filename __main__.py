@@ -1,6 +1,7 @@
 # coding: utf-8
 
-import sys, traceback, jquery, underscore, backbone, bootstrap, jade, less
+import sys, traceback, jquery, underscore, backbone, bootstrap, jade, less, \
+    qunit
 
 tools = {
   'jquery': jquery,
@@ -8,7 +9,8 @@ tools = {
   'backbone': backbone,
   'bootstrap': bootstrap,
   'jade': jade,
-  'less': less
+  'less': less,
+  'qunit': qunit
 }
 
 if 3 > len(sys.argv):

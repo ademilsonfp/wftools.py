@@ -9,7 +9,7 @@ Requirements
 
 To run all the scripts properly you must install the [NPM](https://npmjs.org)
 packages listed below and all [PyPI](http://pypi.python.org/pypi) packages
-listed in `requeriments.txt` file:
+listed in `requirements.txt` file:
 
         jade, less
 
