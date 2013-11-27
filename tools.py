@@ -1,9 +1,45 @@
 # coding: utf-8
 
+'''
+A serie of common tools used by other scripts.
+'''
+
 import os, sys, pickle, datetime, urllib2, settings
 from glob import glob
 
+'''
+Buffer size for downloads.
+'''
+DOWNLOAD_BUFFER = 1024
+
+def path(path, create_dirs=True):
+  '''
+  Create parent directories of a specified path when `create_dirs` flag is
+  marked.
+  '''
+  create_basename = (os.path.sep == path[-1])
+  path = dirs = os.path.realpath(path)
+  if create_dirs:
+    if not create_basename:
+      dirs = os.path.dirname(path)
+    if 1 > len(dirs) and not os.path.exists(dirs):
+      os.path.makedirs(dirs)
+  return path
+
+def subpath(path):
+  '''
+  Returns the path relative to working directory.
+  '''
+  cwd = os.getcwd()
+  l = len(cwd)
+  if cwd == path[:l]:
+    return path[l + 1:]
+  return path
+
 def download(url, path):
+  '''
+  HTTP download with progress bar.
+  '''
   print 'downloading %s...' % url
 
   urlopener = urllib2.build_opener()
@@ -11,7 +47,7 @@ def download(url, path):
 
   response = urlopener.open(url)
   size = int(response.headers.get('content-length', 0))
-  bufsize = getattr(settings, 'DOWNLOAD_BUFFER', 1024)
+  bufsize = settings.DOWNLOAD_BUFFER
   loaded = 0
   try:
     with open(path, 'w') as f:
@@ -44,6 +80,12 @@ def download(url, path):
   print msg
 
 def watch(src, fn, cache_path):
+  '''
+  Watch for file name patterns and executes a function when updates occur.
+
+  The callback function must receive an argument which will be the list of
+  updated files.
+  '''
   if not os.path.exists(cache_path):
     cache = {}
   else:
