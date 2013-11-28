@@ -1,74 +1,218 @@
 # coding: utf-8
 
-import os, shutil, paths, tools, jquery
+import os, shutil, paths, tools, jquery, cache
 
 from fnmatch import fnmatch
 from zipfile import ZipFile
 
-VERSION = '3.0.1'
+'''
+Bootstrap version.
+'''
+VERSION = '3.0.2'
+
+'''
+Download URL.
+'''
 DOWNLOAD_URL = 'https://github.com/twbs/bootstrap/archive/v%s.zip' % VERSION
 
-PATH_JS = 'bootstrap.js'
-PATH_LESS = 'bootstrap/%s'
-PATH_FONT = '%s'
+'''
+Cache path to downloaded zip package.
+'''
+DOWNLOAD_CACHE = 'bootstrap.zip'
 
-PKG_NAME = 'bootstrap.zip'
-PKG_ROOT = 'bootstrap-%s' % VERSION
-PKG_JS = '%s/dist/js/bootstrap.js' % PKG_ROOT
-PKG_LESS = '%s/less/*' % PKG_ROOT
-PKG_FONT = '%s/fonts/*' % PKG_ROOT
+'''
+Cache directory to extract files.
+'''
+UNZIP_CACHE = ''
+
+'''
+Root directory inside ZIP package.
+'''
+ZIP_ROOT = 'bootstrap-%s' % VERSION
+
+'''
+Path of JS file inside ZIP package.
+'''
+ZIP_JS_PATH = '%s/dist/js/bootstrap.js' % ZIP_ROOT
+
+'''
+Directory of CSS files inside ZIP package.
+'''
+ZIP_CSS_PATH = '%s/dist/css' % ZIP_ROOT
+
+'''
+Directory of CSS files inside ZIP package.
+'''
+ZIP_LESS_PATH = '%s/less' % ZIP_ROOT
+
+'''
+Directory of CSS files inside ZIP package.
+'''
+ZIP_FONT_PATH = '%s/dist/fonts' % ZIP_ROOT
 
 def download():
-  pkg_path = paths.cache(PKG_NAME)
-  if not os.path.exists(pkg_path):
-    tools.download(DOWNLOAD_URL, pkg_path)
+  '''
+  Download sources as zip package if is not cached.
+  '''
+  cache_path = cache.path(DOWNLOAD_CACHE)
+  if not os.path.exists(cache_path):
+    tools.download(DOWNLOAD_URL, cache_path)
     print 'bootstrap downloaded'
+  return cache_path
 
-def _install(js=True, font=True, less=True):
-  if not js and not font and not less:
+def unzip_path(path='', create_dirs=True):
+  '''
+  Returns full path prepended with directory of unzipped files and creates
+  parent directories when ``create_dirs`` flag is marked.
+  '''
+  return cache.path(os.path.join(UNZIP_CACHE, path), create_dirs)
+
+def unzip(include=None, exclude=None):
+  '''
+  Download sources and extracts files to cache.
+
+  You can specify files to be include or exclude using the respective
+  parameters.
+
+  Returns the list of unzipped files.
+  '''
+  extracted = []
+  cache_path = unzip_path()
+  zip_path = download()
+  with ZipFile(zip_path, 'r') as pkg:
+    if None is include and None is exclude:
+      pkg.extractall(cache_path)
+      return pkg.namelist()
+    else:
+      if None is include:
+        include = ['*']
+      elif isinstance(include, str):
+        include = [include]
+
+      for zip_file in pkg.namelist():
+        if not zip_file.startswith(ZIP_CSS_PATH):
+          continue
+
+        name = os.path.basename(zip_file)
+        add = False
+        for patt in include:
+          add = fnmatch(name, patt)
+          if add:
+            break
+
+        if add and None is not exclude:
+          if isinstance(exclude, str):
+            add = add and not fnmatch(name, exclude)
+          else:
+            for patt in exclude:
+              add = add and not fnmatch(name, exclude)
+              if not add:
+                break
+
+        if add:
+          pkg.extract(zip_file, cache_path)
+          extracted.append(zip_file)
+  return extracted
+
+def install_js(path):
+  '''
+  Download sources and extracts Javascript file to specified path.
+  '''
+  if os.path.exists(path):
     return
-  elif js:
-    jquery.install()
 
-  download()
-  pkg_path = paths.cache(PKG_NAME)
-  with ZipFile(pkg_path, 'r') as pkg:
-    cache_path = paths.cache()
-    new_path = paths.js(PATH_JS)
-    if js and not os.path.exists(new_path):
-      old_path = paths.cache(PKG_JS)
-      pkg.extract(PKG_JS, cache_path)
-      os.rename(old_path, new_path)
-      print 'bootstrap js installed'
+  zip_path = download()
+  cache_path = cache.path(UNZIP_CACHE)
+  with ZipFile(zip_path, 'r') as pkg:
+    pkg.extract(ZIP_JS_PATH, cache_path)
+    os.rename(unzip_path(ZIP_JS_PATH), path)
 
-    if less or font:
-      for entry in pkg.namelist():
-        bname = os.path.basename(entry)
-        old_path = paths.cache(entry)
-        new_path = None
-        entry_type = None
-        if less and fnmatch(entry, PKG_LESS):
-          new_path = paths.less(PATH_LESS % bname)
-          entry_type = 'less'
-        elif font and fnmatch(entry, PKG_FONT):
-          new_path = paths.font(PATH_FONT % bname)
-          entry_type = 'font'
+def install_css(path, include=None, exclude=None):
+  '''
+  Download sources and extracts CSS files to specified path.
 
-        if None is not new_path and not os.path.exists(new_path):
-          pkg.extract(entry, cache_path)
-          os.rename(old_path, new_path)
-          print 'bootstrap %s %s installed' % (entry_type, bname)
+  You can specify names to be include or exclude using the respective
+  parameters.
 
-  shutil.rmtree(paths.cache(PKG_ROOT))
+  Returns name list of installed files.
+  '''
+  if None is include:
+    include = os.path.join(ZIP_CSS_PATH, '*')
+  elif isinstance(include, str):
+    include = os.path.join(ZIP_CSS_PATH, include)
+  else:
+    include = [os.path.join(ZIP_CSS_PATH, p) for p in include]
 
-def install():
-  _install()
+  if None is not exclude:
+    if isinstance(exclude, str):
+      exclude = os.path.join(ZIP_CSS_PATH, exclude)
+    else:
+      exclude = [os.path.join(ZIP_CSS_PATH, p) for p in exclude]
 
-def install_js():
-  _install(font=False, less=False)
+  extracted = unzip(include, exclude)
+  installed = []
+  for entry in extracted:
+    name = os.path.basename(entry)
+    os.rename(unzip_path(entry, False), os.path.join(path, name))
+    installed.append(name)
+  return installed
 
-def install_font():
-  _install(js=False, less=False)
+def install_less(path, include=None, exclude=None):
+  '''
+  Download sources and extracts LESS files to specified path.
 
-def install_less():
-  _install(False, False)
+  You can specify names to be include or exclude using the respective
+  parameters.
+
+  Returns name list of installed files.
+  '''
+  if None is include:
+    include = os.path.join(ZIP_LESS_PATH, '*')
+  elif isinstance(include, str):
+    include = os.path.join(ZIP_LESS_PATH, include)
+  else:
+    include = [os.path.join(ZIP_LESS_PATH, p) for p in include]
+
+  if None is not exclude:
+    if isinstance(exclude, str):
+      exclude = os.path.join(ZIP_LESS_PATH, exclude)
+    else:
+      exclude = [os.path.join(ZIP_LESS_PATH, p) for p in exclude]
+
+  extracted = unzip(include, exclude)
+  installed = []
+  for entry in extracted:
+    name = os.path.basename(entry)
+    os.rename(unzip_path(entry, False), os.path.join(path, name))
+    installed.append(name)
+  return installed
+
+def install_font(path, include=None, exclude=None):
+  '''
+  Download sources and extracts font files to specified path.
+
+  You can specify names to be include or exclude using the respective
+  parameters.
+
+  Returns name list of installed files.
+  '''
+  if None is include:
+    include = os.path.join(ZIP_FONT_PATH, '*')
+  elif isinstance(include, str):
+    include = os.path.join(ZIP_FONT_PATH, include)
+  else:
+    include = [os.path.join(ZIP_FONT_PATH, p) for p in include]
+
+  if None is not exclude:
+    if isinstance(exclude, str):
+      exclude = os.path.join(ZIP_FONT_PATH, exclude)
+    else:
+      exclude = [os.path.join(ZIP_FONT_PATH, p) for p in exclude]
+
+  extracted = unzip(include, exclude)
+  installed = []
+  for entry in extracted:
+    name = os.path.basename(entry)
+    os.rename(unzip_path(entry, False), os.path.join(path, name))
+    installed.append(name)
+  return installed

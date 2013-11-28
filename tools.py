@@ -4,7 +4,7 @@
 A serie of common tools used by other scripts.
 '''
 
-import os, sys, pickle, datetime, urllib2, settings
+import os, sys, pickle, datetime, urllib2
 from glob import glob
 
 '''
@@ -31,9 +31,8 @@ def subpath(path):
   Returns the path relative to working directory.
   '''
   cwd = os.getcwd()
-  l = len(cwd)
-  if cwd == path[:l]:
-    return path[l + 1:]
+  if path.startswith(cwd):
+    return path[len(cwd) + 1:]
   return path
 
 def download(url, path):
@@ -47,36 +46,44 @@ def download(url, path):
 
   response = urlopener.open(url)
   size = int(response.headers.get('content-length', 0))
-  bufsize = settings.DOWNLOAD_BUFFER
+  buf_size = DOWNLOAD_BUFFER
   loaded = 0
   try:
     with open(path, 'w') as f:
-      chunk = response.read(bufsize)
+      chunk = response.read(buf_size)
       while '' != chunk:
         f.write(chunk)
+
+        # drawing bar
         if 0 < size:
           loaded += len(chunk)
-          bs = 30
-          pl = bs * loaded / size
-          pr = bs * (size - loaded) / size
+          bar_size = 30
+          per_size = bar_size * loaded / size
+          res_size = bar_size * (size - loaded) / size
           per = str(100 * loaded / size)
-          ls = bs + 4 + len(per)
-          pout = ('\r' * ls, ':' * pl, ' ' * pr, per)
-          sys.stdout.write('%s[%s%s] %s%%' % pout)
-        chunk = response.read(bufsize)
+          line_size = bar_size + 4 + len(per)
+
+          bar_tpl = '%s[%s%s] %s%%'
+          bar_fill = ('\r' * line_size, ':' * per_size, ' ' * res_size, per)
+          sys.stdout.write(bar_tpl % bar_fill)
+
+        chunk = response.read(buf_size)
   except KeyboardInterrupt as e:
     os.remove(path)
+
+    # erase bar, print message and raise interruption
     msg = 'download removed %s' % path
     if 0 < size:
-      msg += ' ' * max(0, ls - len(msg))
-      sys.stdout.write(('\r' * ls))
+      msg += ' ' * max(0, line_size - len(msg))
+      sys.stdout.write(('\r' * line_size))
     print msg
     raise e
 
+  # erase bar and print message
   msg = 'download saved %s' % path
   if 0 < size:
-    msg += ' ' * max(0, ls - len(msg))
-    sys.stdout.write(('\r' * ls))
+    msg += ' ' * max(0, line_size - len(msg))
+    sys.stdout.write(('\r' * line_size))
   print msg
 
 def watch(src, fn, cache_path):
