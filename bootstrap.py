@@ -90,22 +90,18 @@ def unzip(include=None, exclude=None):
         include = [include]
 
       for zip_file in pkg.namelist():
-        if not zip_file.startswith(ZIP_CSS_PATH):
-          continue
-
-        name = os.path.basename(zip_file)
         add = False
         for patt in include:
-          add = fnmatch(name, patt)
+          add = fnmatch(zip_file, patt)
           if add:
             break
 
         if add and None is not exclude:
           if isinstance(exclude, str):
-            add = add and not fnmatch(name, exclude)
+            add = add and not fnmatch(zip_file, exclude)
           else:
             for patt in exclude:
-              add = add and not fnmatch(name, exclude)
+              add = add and not fnmatch(zip_file, exclude)
               if not add:
                 break
 
@@ -125,7 +121,7 @@ def install_js(path):
   cache_path = cache.path(UNZIP_CACHE)
   with ZipFile(zip_path, 'r') as pkg:
     pkg.extract(ZIP_JS_PATH, cache_path)
-    os.rename(unzip_path(ZIP_JS_PATH), path)
+    os.rename(unzip_path(ZIP_JS_PATH), tools.path(path))
 
 def install_css(path, include=None, exclude=None):
   '''
@@ -137,7 +133,7 @@ def install_css(path, include=None, exclude=None):
   Returns name list of installed files.
   '''
   if None is include:
-    include = os.path.join(ZIP_CSS_PATH, '*')
+    include = os.path.join(ZIP_CSS_PATH, '*.css')
   elif isinstance(include, str):
     include = os.path.join(ZIP_CSS_PATH, include)
   else:
@@ -153,8 +149,12 @@ def install_css(path, include=None, exclude=None):
   installed = []
   for entry in extracted:
     name = os.path.basename(entry)
-    os.rename(unzip_path(entry, False), os.path.join(path, name))
-    installed.append(name)
+    entry_path = unzip_path(entry, False)
+    install_path = os.path.join(path, name)
+    if not os.path.exists(install_path):
+      tools.path(install_path)
+      os.rename(entry_path, install_path)
+      installed.append(name)
   return installed
 
 def install_less(path, include=None, exclude=None):
@@ -167,7 +167,7 @@ def install_less(path, include=None, exclude=None):
   Returns name list of installed files.
   '''
   if None is include:
-    include = os.path.join(ZIP_LESS_PATH, '*')
+    include = os.path.join(ZIP_LESS_PATH, '*.less')
   elif isinstance(include, str):
     include = os.path.join(ZIP_LESS_PATH, include)
   else:
@@ -183,8 +183,12 @@ def install_less(path, include=None, exclude=None):
   installed = []
   for entry in extracted:
     name = os.path.basename(entry)
-    os.rename(unzip_path(entry, False), os.path.join(path, name))
-    installed.append(name)
+    entry_path = unzip_path(entry, False)
+    install_path = tools.path(os.path.join(path, name))
+    if not os.path.exists(install_path):
+      tools.path(install_path)
+      os.rename(entry_path, install_path)
+      installed.append(name)
   return installed
 
 def install_font(path, include=None, exclude=None):
@@ -197,7 +201,7 @@ def install_font(path, include=None, exclude=None):
   Returns name list of installed files.
   '''
   if None is include:
-    include = os.path.join(ZIP_FONT_PATH, '*')
+    include = os.path.join(ZIP_FONT_PATH, '*.*')
   elif isinstance(include, str):
     include = os.path.join(ZIP_FONT_PATH, include)
   else:
@@ -213,6 +217,10 @@ def install_font(path, include=None, exclude=None):
   installed = []
   for entry in extracted:
     name = os.path.basename(entry)
-    os.rename(unzip_path(entry, False), os.path.join(path, name))
-    installed.append(name)
+    entry_path = unzip_path(entry, False)
+    install_path = tools.path(os.path.join(path, name))
+    if not os.path.exists(install_path):
+      tools.path(install_path)
+      os.rename(entry_path, install_path)
+      installed.append(name)
   return installed

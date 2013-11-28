@@ -22,8 +22,8 @@ def path(path, create_dirs=True):
   if create_dirs:
     if not create_basename:
       dirs = os.path.dirname(path)
-    if 1 > len(dirs) and not os.path.exists(dirs):
-      os.path.makedirs(dirs)
+    if 0 < len(dirs) and not os.path.exists(dirs):
+      os.makedirs(dirs)
   return path
 
 def subpath(path):
