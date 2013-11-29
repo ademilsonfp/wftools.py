@@ -1,6 +1,10 @@
 # coding: utf-8
 
-import os, shutil, paths, tools, jquery, cache
+'''
+Tools to install Bootstrap resources.
+'''
+
+import os, tools, cache
 
 from fnmatch import fnmatch
 from zipfile import ZipFile

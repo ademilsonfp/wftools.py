@@ -60,8 +60,8 @@ def json_cmdarg(json):
 
 def build(tpl_path, js_mode=False, debug=True):
   '''
-  Compiles a single Jade template. If there is a JSON file with same name in the
-  same directory, will be used as Javascript options object.
+  Compiles a single Jade template. If there is a JSON file with same name in
+  the same directory, will be used as Javascript options object.
 
   You can compile the template passing the JSON path, in this case the function
   will look for *.jade* file.
@@ -76,8 +76,7 @@ def build(tpl_path, js_mode=False, debug=True):
 
   # check if template path is a JSON file
   dot = jade_path.rfind('.')
-  ext = jade_path[dot:]
-  if '.json' == ext:
+  if jade_path.endswith('.json'):
     jade_path = jade_path[:dot] + '.jade'
   else:
     json_path = jade_path[:dot] + '.json'
@@ -96,10 +95,13 @@ def build(tpl_path, js_mode=False, debug=True):
     arg_path = BUILD_PATH if not js_mode else JS_BUILD_PATH
     if 1 > len(arg_path):
       arg_path = '.'
-    cmd = [CMD, '-P', '-p', arg_path]
+    cmd = [CMD, '-P', '-o', arg_path]
 
-    # if not in JS mode, pass JSON file as Javascript options object
-    if not js_mode and os.path.exists(json_path):
+    # add --client argument if in JS mode else pass existing JSON file as
+    # Javascript options object
+    if js_mode:
+      cmd.append('-c')
+    elif os.path.exists(json_path):
       json = open(json_path).read()
       cmd.append('-O', json_cmdarg(json))
 
