@@ -41,12 +41,12 @@ Directory of CSS files inside ZIP package.
 ZIP_CSS_PATH = '%s/dist/css' % ZIP_ROOT
 
 '''
-Directory of CSS files inside ZIP package.
+Directory of LESS files inside ZIP package.
 '''
 ZIP_LESS_PATH = '%s/less' % ZIP_ROOT
 
 '''
-Directory of CSS files inside ZIP package.
+Directory of FONT files inside ZIP package.
 '''
 ZIP_FONT_PATH = '%s/dist/fonts' % ZIP_ROOT
 
