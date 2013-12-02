@@ -126,6 +126,8 @@ def install_js(path):
   with ZipFile(zip_path, 'r') as pkg:
     pkg.extract(ZIP_JS_PATH, cache_path)
     os.rename(unzip_path(ZIP_JS_PATH), tools.path(path))
+  print 'bootstrap js installed'
+  return path
 
 def install_css(path, include=None, exclude=None):
   '''
@@ -161,6 +163,9 @@ def install_css(path, include=None, exclude=None):
       installed.append(name)
     else:
       os.unlink(entry_path)
+
+  if 0 < len(installed):
+    print 'bootstrap css installed'
   return installed
 
 def install_less(path, include=None, exclude=None):
@@ -197,6 +202,9 @@ def install_less(path, include=None, exclude=None):
       installed.append(name)
     else:
       os.unlink(entry_path)
+
+  if 0 < len(installed):
+    print 'bootstrap less installed'
   return installed
 
 def install_font(path, include=None, exclude=None):
@@ -233,4 +241,7 @@ def install_font(path, include=None, exclude=None):
       installed.append(name)
     else:
       os.unlink(entry_path)
+
+  if 0 < len(installed):
+    print 'bootstrap font installed'
   return installed
