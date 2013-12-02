@@ -159,6 +159,8 @@ def install_css(path, include=None, exclude=None):
       tools.path(install_path)
       os.rename(entry_path, install_path)
       installed.append(name)
+    else:
+      os.unlink(entry_path)
   return installed
 
 def install_less(path, include=None, exclude=None):
@@ -193,6 +195,8 @@ def install_less(path, include=None, exclude=None):
       tools.path(install_path)
       os.rename(entry_path, install_path)
       installed.append(name)
+    else:
+      os.unlink(entry_path)
   return installed
 
 def install_font(path, include=None, exclude=None):
@@ -227,4 +231,6 @@ def install_font(path, include=None, exclude=None):
       tools.path(install_path)
       os.rename(entry_path, install_path)
       installed.append(name)
+    else:
+      os.unlink(entry_path)
   return installed

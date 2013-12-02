@@ -6,6 +6,8 @@ A serie of common tools used by other scripts.
 
 import os, sys, pickle, datetime, urllib2
 from glob import glob
+from itertools import chain
+from cache import path as get_cache
 
 '''
 Buffer size for downloads.
@@ -86,27 +88,24 @@ def download(url, path):
     sys.stdout.write(('\r' * line_size))
   print msg
 
-def watch(src, fn, cache_path):
+def watch(src, fn, cache_name):
   '''
   Watch for file name patterns and executes a function when updates occur.
 
   The callback function must receive an argument which will be the list of
   updated files.
   '''
-  if not os.path.exists(cache_path):
-    cache = {}
-  else:
+  cache = {}
+  cache_path = get_cache(cache_name)
+  if os.path.exists(cache_path):
     with open(cache_path, 'r') as stored:
       cache = pickle.load(stored)
 
-  fpaths = []
-  for pattern in src:
-    fpaths += glob(pattern)
-
+  fpaths = chain(*[glob(patt) for patt in src])
+  removed = cache.copy()
   updated = []
-  removed = fpaths[:]
   for path in fpaths:
-    removed.remove(path)
+    removed.pop(path, None)
     lmtime = cache.get(path, None)
     mtime = datetime.datetime.fromtimestamp(os.path.getmtime(path))
     if None is lmtime or lmtime < mtime:
