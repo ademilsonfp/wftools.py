@@ -1,15 +1,21 @@
 # coding: utf-8
 
-import os, tools, paths, underscore, jquery
+'''
+Tools to install Backbone.js
+'''
 
+import os, tools
+
+'''
+Download URL for latest Backbone.js version.
+'''
 DOWNLOAD_URL = 'http://backbonejs.org/backbone.js'
-PATH_JS = 'backbone.js'
 
-def install():
-  jquery.install()
-  underscore.install()
-
-  path = paths.js(PATH_JS)
+def install(path):
+  '''
+  If not installed, download the latest version of Backbone.js to specified
+  path.
+  '''
   if not os.path.exists(path):
-    tools.download(DOWNLOAD_URL, path)
+    tools.download(DOWNLOAD_URL, tools.path(path))
     print 'backbone installed'
