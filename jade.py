@@ -4,7 +4,7 @@
 Tools to build Jade templates.
 '''
 
-import os, re, tools
+import os, re, tools, itertools, glob
 
 '''
 Jade command or path.
@@ -114,3 +114,42 @@ def build(tpl_path, js_mode=False, debug=True):
     code = os.system(' '.join(cmd))
     if 0 != code:
       raise Exception('Error %d while building jade file %s' % (code, path))
+
+def build_all(patterns=None, js_mode=False, debug=True):
+  '''
+  Builds all specified templates, accepts glob patterns and does nothing if
+  template does not exist.
+  '''
+
+  if None is patterns:
+    patterns = ['*.jade']
+  elif isinstance(patterns, str):
+    patterns = [patterns]
+
+  all = [glob.glob(path(pattern)) for pattern in patterns]
+  all = itertools.chain(*all)
+  lstrip = 1 + len(TEMPLATE_PATH)
+  for src in all:
+    src = tools.subpath(src)[lstrip:]
+    if 0 < len(src):
+      build(src, js_mode, debug)
+
+def watch_build(watch=None, src=None, js_mode=False, debug=True):
+  '''
+  Watch paths inside jade directory for changes and builds specified templates.
+  '''
+
+  if None is watch:
+    watch = ['*.jade', '*.json']
+  elif isinstance(watch, str):
+    watch = [watch]
+  watch = [path(pattern) for pattern in watch]
+
+  if None is src:
+    src = ['*.jade']
+  elif isinstance(src, str):
+    src = [src]
+
+  def wrap_build(updated):
+    build_all(src, js_mode, debug)
+  tools.watch(watch, wrap_build, 'jade')
